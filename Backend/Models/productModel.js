@@ -1,6 +1,6 @@
 const { kMaxLength } = require('buffer')
 const mongoose = require('mongoose')
-const productSchema = mongoose.Schema({
+const productSchema = new mongoose.Schema({
     name:{
         type:String,
         required:[true, "Please enter Product name"],
@@ -57,6 +57,11 @@ const productSchema = mongoose.Schema({
             }
         }
     ],
+    user:{
+        type:mongoose.Schema.ObjectId,
+        ref:"user",
+        required:true,
+    },
     createdAt:{
         type:Date,
         default:Date.now

@@ -12,6 +12,7 @@ const ApiFeatures = require('../Utils/apiFeature.js');
 
 exports.createproduct = catchAsyncError(
     async (req, res, next) => {
+        req.body.user = req.user.id;
         const product = await Product.create(req.body);
         res.status(201).json({
             success: true,
@@ -94,34 +95,28 @@ exports.updateProduct = catchAsyncError(
 );
 
 // delete product ----->Admin
-exports.deleteProduct = catchAsyncError(
-    async (req, res) => {
-        try {
-            const { id } = req.params;
+exports.deleteProduct = catchAsyncError(async (req, res, next) => {
+    const { id } = req.params;
 
-            // Validate if ID is correct format
-            if (!mongoose.Types.ObjectId.isValid(id)) {
-                return res.status(400).json({ success: false, message: "Invalid Product ID" });
-            }
+    console.log("🛑 DELETE Controller: Request Received - ID:", id);
 
-            const deletedProduct = await Product.findByIdAndDelete(id);
-
-            if (!deletedProduct) {
-                return next(new Errorhandler("Product not Found", 404))
-            }
-
-            res.status(200).json({
-                success: true,
-                message: "Product deleted successfully",
-            });
-
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: "Internal Server Error",
-                error: error.message
-            });
-        }
+    // Validate ID format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        console.error("❌ Invalid Product ID:", id);
+        return next(new Errorhandler("Invalid Product ID", 400));
     }
 
-)
+    console.log("🔎 Searching for Product with ID:", id);
+    const deletedProduct = await Product.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+        console.error("❌ Product Not Found");
+        throw new Errorhandler("Product not Found", 404);
+    }
+
+    console.log("✅ Product Deleted Successfully");
+    res.status(200).json({
+        success: true,
+        message: "Product deleted successfully",
+    });
+});
