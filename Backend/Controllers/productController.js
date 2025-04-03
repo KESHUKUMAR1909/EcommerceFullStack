@@ -120,3 +120,111 @@ exports.deleteProduct = catchAsyncError(async (req, res, next) => {
         message: "Product deleted successfully",
     });
 });
+
+
+// Create new Review or Update the review
+
+exports.createProductReview = catchAsyncError(async (req, res, next) => {
+    const { rating, comment, productId } = req.body;
+
+    const review = {
+        user: req.user._id,
+        name: req.user.name,
+        rating: Number(rating),
+        comment,
+    };
+
+
+
+    const product = await Product.findById(productId);
+    
+    if (!product) {
+        return next(new Errorhandler("Product not found", 404));
+    }
+    // Check if user already reviewed this product
+    const isReviewed = product.reviews.find(
+        (rev) => rev.user.toString() === req.user._id.toString()
+    );
+
+    if (isReviewed) {
+        product.reviews.forEach((rev) => {
+            if (rev.user.toString() === req.user._id.toString()) {
+                rev.rating = rating;
+                rev.comment = comment;
+            }
+        });
+    } else {
+        product.reviews.push(review);
+    }
+
+    // Update number of reviews
+    product.numOfReviews = product.reviews.length;
+
+    // Calculate new average rating
+    product.ratings =
+        product.reviews.reduce((acc, rev) => acc + rev.rating, 0) /
+        product.reviews.length;
+
+    await product.save({validateBeforeSave:false});
+
+    res.status(200).json({
+        success: true,
+        message: "Review added successfully",
+        reviews: product.reviews,
+    });
+});
+
+
+// Get All Reviews 
+exports.getProductReviews = catchAsyncError(async (req, res, next) => {
+    const products = await Product.find().select("reviews");
+    const reviews = products.flatMap(product => product.reviews);
+
+    res.status(200).json({
+        success: true,
+        reviews,
+    });
+});
+// delete Reviews
+
+exports.deleteReview = catchAsyncError(async (req, res, next) => {
+    const { productId } = req.params;
+    console.log(productId);
+
+    // Find the product
+    const product = await Product.findById(productId);
+    if (!product) {
+        return next(new Errorhandler("Product not found", 404));
+    }
+
+    // Check if the user has reviewed the product
+    const reviewIndex = product.reviews.findIndex(
+        (rev) => rev.user.toString() === req.user._id.toString()
+    );
+
+    if (reviewIndex === -1) {
+        return next(new Errorhandler("Review not found", 404));
+    }
+
+    // Remove the review
+    product.reviews.splice(reviewIndex, 1);
+
+    // Update number of reviews
+    product.numOfReviews = product.reviews.length;
+
+    // Recalculate average rating
+    if (product.numOfReviews === 0) {
+        product.ratings = 0;
+    } else {
+        product.ratings =
+            product.reviews.reduce((acc, rev) => acc + rev.rating, 0) / product.numOfReviews;
+    }
+
+    // Save changes
+    await product.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+        success: true,
+        message: "Your review has been deleted successfully",
+    });
+});
