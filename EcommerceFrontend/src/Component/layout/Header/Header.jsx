@@ -19,7 +19,7 @@ const options = {
   link3Text: "Contact",
   link4Text: "About",
   link1Url: "/",
-  link2Url: "/product",
+  link2Url: "/products",
   link3Url: "/contact",
   link4Url: "/about",
   link1Size: "1.5vmax",
@@ -36,7 +36,7 @@ const options = {
   // Profile Icon
   profileIcon: true,
   ProfileIconElement: FaUser,
-  profileIconUrl: "/account",
+  profileIconUrl: "/login",
   profileIconColor: "rgba(35, 35, 35, 0.8)",
   profileIconColorHover: "#eb4034",
 
@@ -45,6 +45,7 @@ const options = {
   SearchIconElement: FaSearch,
   searchIconColor: "rgba(35, 35, 35, 0.8)",
   searchIconColorHover: "#eb4034",
+  searchIconUrl:'/search',
 
   // Cart Icon
   cartIcon: true,
