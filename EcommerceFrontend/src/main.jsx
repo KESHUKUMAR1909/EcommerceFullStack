@@ -15,11 +15,11 @@ import AlertTemplate from 'react-alert-template-basic'; // ✅ Add this!
 // };
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+
     <Provider store={store}>
       {/* <AlertProvider template={AlertTemplate} {...options}> */}
         <App />
       {/* </AlertProvider> */}
     </Provider>
-  </StrictMode>
+
 );

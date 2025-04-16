@@ -4,16 +4,23 @@ const catchAsyncError = require('../Middleware/catchAsyncError.js');
 const crypto = require("crypto");
 const sendToken = require('../Utils/jwtToken.js');
 const sendEmail = require('../Utils/sendEmail.js');
+const cloduinary= require('cloudinary')
 
 // register a user
 
 exports.registerUser = catchAsyncError(async (req, res, next) => {
+    const myCloud = await cloduinary.v2.uploader.upload(req.body.avatar ,{
+        folder:'avatars',
+        width:150,
+        crop:"scale"
+    })
     const { name, email, password } = req.body;
+
     const user = await User.create({
         name, email, password,
         avatar: {
-            public_id: "This is the sample id",
-            url: "Profile Photo"
+            public_id:myCloud.public_id,
+            url:myCloud.secure_url
         }
     });
     sendToken(user, 201, res)
@@ -22,10 +29,12 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 // login User
 exports.loginUser = catchAsyncError(async (req, res, next) => {
     const { email, password } = req.body;
+    console.log(email , password);
     if (!email || !password) {
         return next(new Errorhandler("Please Enter Email and Password", 400))
     }
     const user = await User.findOne({ email }).select('+password');
+    console.log(user);
     if (!user) {
         return next(new Errorhandler("Invalid email or password"), 401);
     }

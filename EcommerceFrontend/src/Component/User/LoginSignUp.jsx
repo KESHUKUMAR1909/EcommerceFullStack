@@ -12,7 +12,7 @@ import './LoginSignUp.css';
 
 // Components & Actions
 import Loader from '../layout/Loader/Loader.jsx';
-import { clearErrors, login } from '../../Actions/userAction.jsx';
+import { clearErrors, login, register } from '../../Actions/userAction.jsx';
 
 const LoginSignUp = () => {
   const dispatch = useDispatch();
@@ -53,7 +53,7 @@ const LoginSignUp = () => {
     myForm.set('email', email);
     myForm.set('password', password);
     myForm.set('avatar', avatar);
-
+    dispatch(register(myForm))
     console.log('Register with:', { name, email, password, avatar });
     // You can dispatch(register(myForm)) here when ready
   };
@@ -75,14 +75,14 @@ const LoginSignUp = () => {
     }
   };
 
-  useEffect(()=>{
-    if(error){
-      dispatch(clearErrors())
+  useEffect(() => {
+    if (error) {
+      dispatch(clearErrors());
     }
-    if(isAuthenticated){
-      Navigate('/account')
+    if (isAuthenticated) {
+      navigate('/account');  // ← fix here!
     }
-  } , [navigate , dispatch , isAuthenticated  , error]);
+  }, [navigate, dispatch, isAuthenticated, error]);
 
   const switchTabs = (e, tab) => {
     if (tab === 'login') {
