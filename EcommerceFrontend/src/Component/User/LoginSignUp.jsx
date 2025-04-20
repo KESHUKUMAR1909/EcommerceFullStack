@@ -80,7 +80,7 @@ const LoginSignUp = () => {
       dispatch(clearErrors());
     }
     if (isAuthenticated) {
-      navigate('/account');  // ← fix here!
+      navigate('/account');  
     }
   }, [navigate, dispatch, isAuthenticated, error]);
 
